@@ -1,0 +1,31 @@
+{
+  "scenario": "Corporate Travel Assistant",
+  "description": "An LLM-powered agent that plans and books corporate travel using MCP, ANS, A2A, and AP2 protocols.",
+  "agents": [
+    {
+      "id": "travel_agent",
+      "role": "Coordinates all travel tasks",
+      "capabilities": ["lookup_calendar", "lookup_policies", "lookup_expense_system"],
+      "protocols_used": ["MCP", "ANS", "A2A", "AP2"]
+    },
+    { "id": "hotel_agent", "role": "Books hotels via APIs" },
+    { "id": "flight_agent", "role": "Books flights via APIs" },
+    { "id": "payment_agent", "role": "Executes approved payments" }
+  ],
+  "protocols": {
+    "MCP": { "tools_exposed": ["calendar", "policy_db", "expense_mgmt"] },
+    "ANS": { "lookup_targets": ["hotel_agent", "flight_agent"], "cache_ttl": 60 },
+    "A2A": { "auth_forwarding": "OAuth2-JWT", "scope": ["booking"], "ttl": 30 },
+    "AP2": { "credit_policy": "per_transaction", "limits": { "daily": 5 } }
+  },
+  "data_flows": [
+    ["travel_agent", "MCP", "lookup_calendar"],
+    ["travel_agent", "ANS", "find_booking_agents"],
+    ["travel_agent", "flight_agent", "negotiate_flight"],
+    ["travel_agent", "hotel_agent", "coordinate_room"],
+    ["travel_agent", "payment_agent", "execute_payments"]
+  ],
+  "policies": { "token_ttl_min": 30, "rate_limit_rps": 3, "logging": true },
+  "temporal_horizon": { "ticks": 5, "ans_cache_ttl_min": 60 },
+  "behavior_baselines": { "retry_aggressiveness": 0.4, "context_truncation_rate": 0.2 }
+}
