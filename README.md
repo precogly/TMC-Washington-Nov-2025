@@ -167,16 +167,62 @@ The executive summary translates technical vulnerabilities into business impact:
 - Operational disruption
 - Strategic recommendations with timelines (0-30 days, 30-90 days, 90+ days)
 
-## Development Notes
+## Future Work / Todo
 
-- Research project, not production software
-- Uses Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) with temperature=0.0 for deterministic analysis
-- Jupyter notebook environment for interactive exploration
-- Outputs in JSON (structured), Markdown (narrative), and PNG (diagrams)
-- See `CLAUDE.md` for detailed development guidance
+The current pipeline uses a single LLM to analyze and prioritize vulnerabilities in Stage 5. Two potential enhancements would add multi-perspective jury evaluation stages:
 
-## References
+### Stage 3.5: Vulnerability Evaluation Jury (Potential Addition)
 
-- Multi-agent coordination patterns from real-world systems (AWS, financial trading, IoT)
-- Historical failure examples: Flash Crash, Knight Capital, Y2K, Heartbleed, Log4j
-- Protocol specifications: ANS, A2A (JSON-RPC), MCP, AP2 (mandate chains)
+A 5-judge panel evaluating vulnerability stories before attack generation:
+
+**Judges:**
+
+- **Security Researcher** - Technical depth, emergence validity, research novelty
+- **System Architect** - System impact, architectural implications, fix feasibility
+- **Business Risk Analyst** - Business impact, stakeholder costs, strategic priority
+- **Incident Responder** - Detection potential, response complexity, real-world likelihood
+- **Red Team Lead** - Exploitability, threat actor appeal, attack surface
+
+**Scoring**: Each judge scores on 1-10 scale across 3 dimensions (15 total scores per vulnerability)
+
+**Output**: Consensus recommendations (CRITICAL ≥8.5, HIGH 7.0-8.4, MEDIUM 5.0-6.9, LOW 3.0-4.9, REJECT <3.0)
+
+**Benefits:**
+
+- Multi-perspective assessment catches blind spots
+- Quantified scoring enables consistent prioritization
+- Expert disagreements (>2 point spread) flag edge cases for human review
+
+**Tradeoffs:**
+
+- Adds ~15-20 minutes to pipeline (5 LLM calls per vulnerability)
+- Increases API costs 5x for this stage
+- More complex to interpret with 5 different perspectives
+
+### Stage 5.5: Attack Evaluation Jury (Potential Addition)
+
+Same 5-judge panel evaluating attack scenarios after generation:
+
+**Judges evaluate:**
+
+- **Security Researcher** - Attack technical soundness, exploit realism, attack novelty
+- **System Architect** - Attack systemic impact, defense difficulty, cascading effects
+- **Business Risk Analyst** - Attack-specific impact, attacker ROI, defender cost
+- **Incident Responder** - Detection difficulty, response complexity, forensic clarity
+- **Red Team Lead** - Attack creativity, threat actor motivation, exploit chain validity
+
+**Scoring**: Same 1-10 scale across 3 dimensions per judge
+
+**Output**: Separate attack scenario rankings (which exploitation techniques are most dangerous)
+
+**Benefits:**
+
+- Validates attack realism from multiple angles
+- Identifies most dangerous attack paths for each vulnerability
+- Distinguishes theoretical vs. practical exploitation
+
+**Tradeoffs:**
+
+- Adds ~20-30 minutes (5 LLM calls per attack scenario, ~8-16 scenarios total)
+- Significant API cost increase (5x multiplier on attack analysis)
+- Risk of over-analyzing less critical vulnerabilities
