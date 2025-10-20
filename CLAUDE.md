@@ -31,13 +31,16 @@ jupyter lab
 
 ### Core Directories
 
-**`prompts/`** - Specialized vulnerability story generator (VSG) prompts
+**`prompts/`** - Specialized vulnerability story generator (VSG) prompts and report generation
 
 - `bvsg-prompt.md` - Behavioral Vulnerabilities Stories Generator
 - `dcvsg-prompt.md` - Dependency Cascade Vulnerabilities Stories Generator
 - `rvsg-prompt.md` - Resonant Vulnerabilities Stories Generator
 - `tvsg-prompt.md` - Temporal Vulnerabilities Stories Generator
-- Each prompt is a specialized agent definition for a 4-agent vulnerability analysis pipeline
+- `deduplicator-prompt.md` - Deduplication analysis prompt
+- `plausibility-checker-prompt.md` - Plausibility scoring prompt (5 dimensions)
+- `attack-generator-prompt.md` - SCAMPER attack scenario generator
+- `report-generator-executive-prompt.md` - Executive summary generation prompt (business-focused, 2-3 pages)
 
 **`meta-prompts/`** - Meta-prompts that guide the creation of VSG prompts
 
@@ -61,8 +64,7 @@ jupyter lab
   - `02-deduplicated/` - After deduplication stage
   - `03-plausibility/` - After plausibility filtering
   - `04-attack-stories/` - SCAMPER-generated attack scenarios
-  - `05-jury/` - Jury evaluation and scoring
-  - `06-reports/` - Final executive and technical reports
+  - `05-reports/` - Final executive summary report
 - `templates/` - JSON schemas for stories and metadata
 
 **`tmc-2027-pre-mortems/`** - Legacy pre-mortem narratives (pre-pipeline)
@@ -118,14 +120,19 @@ The reference system being analyzed is a multi-agent travel booking system with:
 
 ## Vulnerability Analysis Pipeline
 
-The complete analysis pipeline consists of 6 stages:
+The simplified analysis pipeline consists of 5 stages:
 
 1. **VSG Generation** - Run 4 VSGs (BVSG, DCVSG, RVSG, TVSG) to produce 8 stories total (2 per VSG)
 2. **Deduplication** - Remove duplicate or highly similar vulnerability stories
-3. **Plausibility Check** - Score and filter stories based on feasibility
-4. **Attack Story Generation** - Use SCAMPER framework to generate creative attack scenarios
-5. **Jury Evaluation** - Judge stories for quality, impact, and actionability
-6. **Report Generation** - Produce executive summary and technical report
+3. **Plausibility Check** - Score and filter stories based on feasibility (5 dimensions: Technical Feasibility, Emergence Validity, Impact Severity, Detection Difficulty, Exploit Complexity)
+4. **Attack Story Generation** - Use SCAMPER framework to generate creative attack scenarios for each vulnerability (Substitute, Combine, Adapt, Modify, Put to another use, Eliminate, Reverse)
+5. **Executive Summary Generation** - LLM-powered analysis that:
+   - Identifies duplicate vulnerabilities across VSGs
+   - Assesses severity using both vulnerability narratives and attack scenarios
+   - Prioritizes findings (CRITICAL/HIGH/MEDIUM/LOW) based on business impact, exploitability, and emergence validity
+   - Produces business-focused 2-3 page report with strategic recommendations
+
+The pipeline focuses on generating high-quality vulnerability stories, validating them with realistic attack scenarios, and producing actionable executive summaries. The LLM synthesizes all inputs (8 vulnerability stories + attack scenarios) and makes prioritization decisions based on comprehensive analysis of both the underlying weaknesses and their exploitation paths.
 
 ### Vulnerability Story Format
 
@@ -195,10 +202,10 @@ These ground the analysis in real-world failure patterns.
 ```bash
 # Create timestamped run directory
 RUN_ID=$(date +%Y-%m-%d-%H%M%S)
-mkdir -p "artifacts/runs/${RUN_ID}"/{inputs,01-vsg-outputs,02-deduplicated,03-plausibility,04-attack-stories,05-jury,06-reports}
+mkdir -p "artifacts/runs/${RUN_ID}"/{inputs,01-vsg-outputs,02-deduplicated,03-plausibility,04-attack-stories,05-reports}
 
 # Or use a named run
-mkdir -p "artifacts/runs/tmc-2027-run-001"/{inputs,01-vsg-outputs,02-deduplicated,03-plausibility,04-attack-stories,05-jury,06-reports}
+mkdir -p "artifacts/runs/tmc-2027-run-001"/{inputs,01-vsg-outputs,02-deduplicated,03-plausibility,04-attack-stories,05-reports}
 ```
 
 ## Development Notes
