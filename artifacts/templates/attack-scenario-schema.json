@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Attack Scenario Schema",
+  "type": "object",
+  "required": ["id", "vulnerability_id", "vulnerability_title", "attack_title", "scamper_dimensions", "attacker_profile", "prerequisites", "attack_narrative", "attack_steps", "exploitation_mechanism", "attack_impact", "detection_difficulty", "defensive_mitigations", "generated_at", "model"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ATTACK-\\d{3}$",
+      "description": "Unique attack scenario identifier (e.g., ATTACK-001)"
+    },
+    "vulnerability_id": {
+      "type": "string",
+      "pattern": "^(BVSG|DCVSG|RVSG|TVSG)-\\d{3}$",
+      "description": "ID of the vulnerability being exploited (e.g., BVSG-001)"
+    },
+    "vulnerability_title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Title of the underlying vulnerability"
+    },
+    "attack_title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Descriptive name for this specific attack scenario"
+    },
+    "scamper_dimensions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["Substitute", "Combine", "Adapt", "Modify", "Magnify", "Put to Another Use", "Eliminate", "Reverse"]
+      },
+      "minItems": 1,
+      "description": "SCAMPER framework dimensions applied in this attack"
+    },
+    "attacker_profile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Type of threat actor (e.g., APT, financially-motivated criminal, insider)"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Required capabilities, access, or resources for the attacker"
+    },
+    "attack_narrative": {
+      "type": "string",
+      "minLength": 100,
+      "description": "200-300 word narrative describing how the attack unfolds"
+    },
+    "attack_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Ordered list of specific actions the attacker takes"
+    },
+    "exploitation_mechanism": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Explanation of how the attack exploits the vulnerability"
+    },
+    "attack_impact": {
+      "type": "object",
+      "required": ["primary_goal", "blast_radius", "duration"],
+      "properties": {
+        "primary_goal": {
+          "type": "string",
+          "description": "Attacker's main objective"
+        },
+        "blast_radius": {
+          "type": "string",
+          "description": "Scope and scale of impact"
+        },
+        "duration": {
+          "type": "string",
+          "description": "Time to execute and persistence of impact"
+        }
+      },
+      "description": "Detailed impact analysis"
+    },
+    "detection_difficulty": {
+      "type": "string",
+      "enum": ["Very Easy", "Easy", "Moderate", "Hard", "Very Hard"],
+      "description": "How difficult it is to detect this attack"
+    },
+    "detection_reasoning": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Explanation of why the attack is easy/hard to detect"
+    },
+    "defensive_mitigations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the defensive measure"
+          },
+          "description": {
+            "type": "string",
+            "description": "How the mitigation works"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "Defensive countermeasures to prevent or detect the attack"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of generation"
+    },
+    "model": {
+      "type": "string",
+      "description": "Model used for generation (e.g., claude-sonnet-4-5-20250929)"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Run Metadata Schema",
+  "type": "object",
+  "required": ["run_id", "created_at", "system_name", "input_files"],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for this analysis run (timestamp or custom name)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when run was initiated"
+    },
+    "system_name": {
+      "type": "string",
+      "description": "Name of the multi-agent system being analyzed"
+    },
+    "input_files": {
+      "type": "object",
+      "required": ["epic", "protocols"],
+      "properties": {
+        "epic": {
+          "type": "string",
+          "description": "Path to source epic file"
+        },
+        "protocols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Array of protocol threat model file paths"
+        }
+      }
+    },
+    "pipeline_stages_completed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["vsg", "dedup", "plausibility", "attack_stories", "jury", "reports"]
+      },
+      "description": "Completed pipeline stages"
+    },
+    "total_stories_generated": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total stories from all VSGs (should be 8 for 4 VSGs × 2 stories)"
+    },
+    "total_stories_after_dedup": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Stories remaining after deduplication"
+    },
+    "total_stories_after_plausibility": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Stories passing plausibility threshold"
+    },
+    "configuration": {
+      "type": "object",
+      "description": "Optional configuration parameters for the run"
+    }
+  }
+}
